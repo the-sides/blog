@@ -216,7 +216,13 @@ img {
   text-align: center;
 }
 
-.article-header h1,
+.article-header h1 {
+  font-size: clamp(2.35rem, 5vw, 4.8rem);
+  letter-spacing: 0;
+  line-height: 0.94;
+  margin: 0;
+}
+
 .empty-state h1 {
   font-size: clamp(2.7rem, 7vw, 6.5rem);
   letter-spacing: 0;

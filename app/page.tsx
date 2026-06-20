@@ -10,7 +10,7 @@ export default async function HomePage() {
       <section className="home-hero">
         <div className="hero-copy">
           <p className="eyebrow">Notion as the desk, React as the workshop</p>
-          <h1>Write posts in Notion. Drop in custom code where the page needs it.</h1>
+          <h1>Jacob Sides - Blog</h1>
           <p>
             This blog renders normal Notion blocks, then turns dedicated
             shortcode blocks into registered React components. Wrapper

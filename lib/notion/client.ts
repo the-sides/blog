@@ -83,7 +83,17 @@ async function listDataSourcePages() {
   return pages;
 }
 
-async function getBlockChildren(blockId: string): Promise<NotionBlock[]> {
+async function getBlockChildren(
+  blockId: string,
+  visitedBlockIds = new Set<string>(),
+): Promise<NotionBlock[]> {
+  if (visitedBlockIds.has(blockId)) {
+    return [];
+  }
+
+  const nextVisitedBlockIds = new Set(visitedBlockIds);
+  nextVisitedBlockIds.add(blockId);
+
   const blocks: NotionBlock[] = [];
   let cursor: string | null = null;
 
@@ -100,13 +110,15 @@ async function getBlockChildren(blockId: string): Promise<NotionBlock[]> {
 
     const hydrated = await Promise.all(
       response.results.map(async (block) => {
+        const childBlockId = getBlockChildrenSourceId(block) || block.id;
+
         if (!block.has_children) {
           return block;
         }
 
         return {
           ...block,
-          children: await getBlockChildren(block.id),
+          children: await getBlockChildren(childBlockId, nextVisitedBlockIds),
         };
       }),
     );
@@ -116,6 +128,28 @@ async function getBlockChildren(blockId: string): Promise<NotionBlock[]> {
   } while (cursor);
 
   return blocks;
+}
+
+function getBlockChildrenSourceId(block: NotionBlock) {
+  if (block.type !== "synced_block") {
+    return null;
+  }
+
+  const syncedBlock = block.synced_block;
+
+  if (!syncedBlock || typeof syncedBlock !== "object") {
+    return null;
+  }
+
+  const syncedFrom = (syncedBlock as { synced_from?: unknown }).synced_from;
+
+  if (!syncedFrom || typeof syncedFrom !== "object") {
+    return null;
+  }
+
+  const blockId = (syncedFrom as { block_id?: unknown }).block_id;
+
+  return typeof blockId === "string" ? blockId : null;
 }
 
 async function notionFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
