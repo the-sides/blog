@@ -44,6 +44,12 @@ img {
   padding: 40px 0 48px;
 }
 
+/* Framed pages drop the header but keep half its footprint, so the title has
+   breathing room without pushing content down the way the full header does. */
+.embed-spacer {
+  block-size: 56px;
+}
+
 .brand-mark {
   font-size: 0.95rem;
   font-weight: 600;
