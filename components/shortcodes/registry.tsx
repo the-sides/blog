@@ -15,10 +15,9 @@ export const shortcodeRegistry: Record<string, ShortcodeComponent> = {
 function Aside({
   children,
   title = "Aside",
-  tone = "green",
 }: Record<string, unknown> & { children?: React.ReactNode }) {
   return (
-    <aside className="shortcode-aside" data-tone={String(tone)}>
+    <aside className="shortcode-aside">
       <p className="shortcode-title">{asText(title, "Aside")}</p>
       {children}
     </aside>

@@ -53,7 +53,7 @@ export default async function PostPage({ params }: PageProps) {
   }
 
   return (
-    <main className="article-shell">
+    <main>
       {!hasNotionCredentials() ? (
         <div className="demo-banner">
           Demo mode: add Notion credentials to `.env.local` to render your data
@@ -63,8 +63,8 @@ export default async function PostPage({ params }: PageProps) {
 
       <article>
         <header className="article-header">
-          <p className="eyebrow">{post.author || "From Notion"}</p>
           <h1>{post.title}</h1>
+          <p className="post-meta">{formatPostDate(post.publishedAt)}</p>
           {post.excerpt ? <p>{post.excerpt}</p> : null}
         </header>
 
@@ -76,4 +76,16 @@ export default async function PostPage({ params }: PageProps) {
       </article>
     </main>
   );
+}
+
+function formatPostDate(value?: string) {
+  if (!value) {
+    return "Draft";
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(value));
 }
