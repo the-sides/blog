@@ -9,3 +9,5 @@ dist
 .env.production.local
 *.log
 tsconfig.tsbuildinfo
+.vercel
+.env*
