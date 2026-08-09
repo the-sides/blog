@@ -1,24 +1,25 @@
-/* Dark is the default, so the tokens live on :root and light overrides them.
-   The theme attribute is set by an inline script before first paint. */
+/* Catppuccin: Mocha for dark, Latte for light. Dark is the default, so the
+   tokens live on :root and light overrides them. The theme attribute is set by
+   an inline script before first paint. */
 :root,
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --ink: #ededed;
-  --muted: #8d8d8d;
-  --paper: #101010;
-  --line: #262626;
-  --wash: #191919;
-  --thumb: #2e2e2e;
+  --ink: #cdd6f4; /* mocha text */
+  --muted: #9399b2; /* mocha overlay2 */
+  --paper: #1e1e2e; /* mocha base */
+  --line: #313244; /* mocha surface0 */
+  --wash: #181825; /* mocha mantle */
+  --thumb: #45475a; /* mocha surface1 */
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --ink: #1a1a1a;
-  --muted: #6f6f6f;
-  --paper: #ffffff;
-  --line: #e6e6e6;
-  --wash: #f7f7f7;
-  --thumb: #ededed;
+  --ink: #4c4f69; /* latte text */
+  --muted: #5c5f77; /* latte subtext1 — subtext0 falls under 4.5:1 on base */
+  --paper: #eff1f5; /* latte base */
+  --line: #ccd0da; /* latte surface0 */
+  --wash: #e6e9ef; /* latte mantle */
+  --thumb: #bcc0cc; /* latte surface1 */
 }
 
 * {
