@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -18,6 +19,7 @@ export function SiteHeader() {
           Jacob Sides
         </a>
       )}
+      <ThemeToggle />
     </header>
   );
 }
