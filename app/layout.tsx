@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 };
 
 // Browsers label a framed top-level navigation with Sec-Fetch-Dest, so embedded
-// views can drop the site chrome without a client-side flash, leaving a spacer
-// in its place so the page doesn't start flush against the frame.
+// views can drop the site chrome without a client-side flash. The header itself
+// decides what to do with that: posts keep it as the way back to the index.
 const EMBEDDED_DESTINATIONS = new Set(["iframe", "frame", "embed", "object"]);
 
 export default async function RootLayout({
@@ -34,11 +34,7 @@ export default async function RootLayout({
       </head>
       <body>
         <div className="site-shell">
-          {isEmbedded ? (
-            <div className="embed-spacer" aria-hidden="true" />
-          ) : (
-            <SiteHeader />
-          )}
+          <SiteHeader isEmbedded={isEmbedded} />
           {children}
         </div>
       </body>
