@@ -9,14 +9,15 @@ export function SiteHeader() {
 
   return (
     <header className="site-header">
-      <Link className="brand-mark" href="/">
-        Jacob Sides
-      </Link>
       {isPost ? (
-        <nav className="site-nav" aria-label="Primary">
-          <Link href="/">Thoughts</Link>
-        </nav>
-      ) : null}
+        <Link className="brand-mark" href="/">
+          Thoughts
+        </Link>
+      ) : (
+        <a className="brand-mark" href="https://jacobsides.com">
+          Jacob Sides
+        </a>
+      )}
     </header>
   );
 }

@@ -49,14 +49,6 @@ img {
   font-weight: 600;
 }
 
-.site-nav {
-  color: var(--muted);
-  display: flex;
-  font-size: 0.9rem;
-  gap: 16px;
-}
-
-.site-nav a:hover,
 .brand-mark:hover {
   text-decoration: underline;
 }
