@@ -1,0 +1,22 @@
+---
+// Annotations nest, so each level renders one wrapper and hands the rest to
+// itself. `tags` arrives outermost first.
+interface Props {
+  tags: string[];
+  href?: string | null;
+  text: string;
+}
+
+const { tags, href, text } = Astro.props;
+const [Tag, ...rest] = tags;
+---
+
+{
+  Tag === undefined ? (
+    text
+  ) : Tag === "a" ? (
+    <a href={href} rel="noreferrer" target="_blank"><Astro.self tags={rest} href={href} text={text} /></a>
+  ) : (
+    <Tag><Astro.self tags={rest} href={href} text={text} /></Tag>
+  )
+}

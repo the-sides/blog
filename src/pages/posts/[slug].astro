@@ -1,0 +1,46 @@
+---
+import NotionContent from "@/components/notion/NotionContent.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { formatPostDate } from "@/lib/date";
+import { getPostBySlug, hasNotionCredentials } from "@/lib/notion/client";
+
+const { slug } = Astro.params;
+const post = slug ? await getPostBySlug(slug) : null;
+
+if (!post) {
+  return Astro.rewrite("/404");
+}
+---
+
+<BaseLayout
+  title={post.title}
+  description={post.excerpt}
+  openGraph={{
+    type: "article",
+    publishedTime: post.publishedAt,
+    author: post.author,
+    image: post.coverUrl,
+  }}
+>
+  <main>
+    {
+      !hasNotionCredentials() ? (
+        <div class="demo-banner">
+          Demo mode: add Notion credentials to `.env.local` to render your data source.
+        </div>
+      ) : null
+    }
+
+    <article>
+      <header class="article-header">
+        <h1>{post.title}</h1>
+        <p class="post-meta">{formatPostDate(post.publishedAt)}</p>
+        {post.excerpt ? <p>{post.excerpt}</p> : null}
+      </header>
+
+      {post.coverUrl ? <img class="article-cover" src={post.coverUrl} alt="" /> : null}
+
+      <NotionContent blocks={post.blocks} />
+    </article>
+  </main>
+</BaseLayout>

@@ -1,0 +1,56 @@
+---
+import SiteHeader from "@/components/SiteHeader.astro";
+import { DEFAULT_THEME, THEME_INIT_SCRIPT } from "@/lib/theme";
+import "@/styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  openGraph?: {
+    type?: string;
+    publishedTime?: string;
+    author?: string;
+    image?: string;
+  };
+}
+
+const SITE_NAME = "Jacob Sides";
+const SITE_DESCRIPTION = "A Notion-backed blog.";
+
+const { title, description = SITE_DESCRIPTION, openGraph } = Astro.props;
+const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
+
+// Browsers label a framed top-level navigation with Sec-Fetch-Dest, so embedded
+// views can drop the site chrome without a client-side flash. The header itself
+// decides what to do with that: posts keep it as the way back to the index.
+const EMBEDDED_DESTINATIONS = new Set(["iframe", "frame", "embed", "object"]);
+const isEmbedded = EMBEDDED_DESTINATIONS.has(
+  Astro.request.headers.get("sec-fetch-dest") ?? "",
+);
+---
+
+<html lang="en" data-theme={DEFAULT_THEME}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title ?? SITE_NAME} />
+    <meta property="og:description" content={description} />
+    {openGraph?.type ? <meta property="og:type" content={openGraph.type} /> : null}
+    {openGraph?.image ? <meta property="og:image" content={openGraph.image} /> : null}
+    {
+      openGraph?.publishedTime ? (
+        <meta property="article:published_time" content={openGraph.publishedTime} />
+      ) : null
+    }
+    {openGraph?.author ? <meta property="article:author" content={openGraph.author} /> : null}
+    <script is:inline set:html={THEME_INIT_SCRIPT} />
+  </head>
+  <body>
+    <div class="site-shell">
+      <SiteHeader isEmbedded={isEmbedded} />
+      <slot />
+    </div>
+  </body>
+</html>

@@ -1,0 +1,27 @@
+---
+import ThemeToggle from "./ThemeToggle.astro";
+
+interface Props {
+  isEmbedded?: boolean;
+}
+
+const { isEmbedded = false } = Astro.props;
+const isPost = Astro.url.pathname.startsWith("/posts/");
+---
+
+{
+  // A framed post still needs its way back to the index, so only the index
+  // itself trades the header for a spacer when embedded.
+  isEmbedded && !isPost ? (
+    <div class="embed-spacer" aria-hidden="true" />
+  ) : (
+    <header class="site-header">
+      {isPost ? (
+        <a class="brand-mark" href="/">Thoughts</a>
+      ) : (
+        <a class="brand-mark" href="https://jacobsides.com">Jacob Sides</a>
+      )}
+      <ThemeToggle />
+    </header>
+  )
+}

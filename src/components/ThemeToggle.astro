@@ -1,0 +1,72 @@
+---
+import { DEFAULT_THEME, THEMES, THEME_LABELS, THEME_STORAGE_KEY } from "@/lib/theme";
+
+// The script below is inline and sits directly after the markup, so the pressed
+// state is correct before the first paint rather than after a framework catches
+// up. The stylesheet draws the rest off `data-theme` on <html>, which leaves the
+// script responsible only for clicks and the accessible state.
+---
+
+<div class="theme-toggle" role="group" aria-label="Theme">
+  <span class="theme-toggle__thumb" aria-hidden="true"></span>
+  {
+    THEMES.map((option) => (
+      <button
+        type="button"
+        class="theme-option"
+        data-option={option}
+        aria-pressed={option === DEFAULT_THEME}
+        aria-label={THEME_LABELS[option]}
+        title={THEME_LABELS[option]}
+      >
+        {option === "light" ? (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.2" />
+            <path d="M12 1.8v2.6M12 19.6v2.6M22.2 12h-2.6M4.4 12H1.8M19.2 4.8l-1.9 1.9M6.7 17.3l-1.9 1.9M19.2 19.2l-1.9-1.9M6.7 6.7 4.8 4.8" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.5 14.6A8.8 8.8 0 0 1 9.4 3.5a8.8 8.8 0 1 0 11.1 11.1Z" />
+          </svg>
+        )}
+      </button>
+    ))
+  }
+</div>
+
+<script is:inline define:vars={{ storageKey: THEME_STORAGE_KEY }}>
+  (function () {
+    var root = document.documentElement;
+    var toggle = document.querySelector(".theme-toggle");
+
+    if (!toggle) {
+      return;
+    }
+
+    var options = Array.prototype.slice.call(toggle.querySelectorAll(".theme-option"));
+
+    function sync() {
+      var theme = root.dataset.theme === "light" ? "light" : "dark";
+
+      options.forEach(function (button) {
+        button.setAttribute("aria-pressed", String(button.dataset.option === theme));
+      });
+    }
+
+    options.forEach(function (button) {
+      button.addEventListener("click", function () {
+        root.dataset.theme = button.dataset.option;
+
+        try {
+          localStorage.setItem(storageKey, button.dataset.option);
+        } catch (error) {
+          // Private-mode storage failures shouldn't break the toggle.
+        }
+
+        sync();
+      });
+    });
+
+    sync();
+  })();
+</script>

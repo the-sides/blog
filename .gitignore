@@ -1,6 +1,5 @@
-.next
+.astro
 node_modules
-out
 dist
 .env
 .env.local
@@ -8,6 +7,5 @@ dist
 .env.test.local
 .env.production.local
 *.log
-tsconfig.tsbuildinfo
 .vercel
 .env*

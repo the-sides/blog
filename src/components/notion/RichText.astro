@@ -1,0 +1,47 @@
+---
+import type { RichText as RichTextPart } from "@/lib/notion/types";
+import AnnotatedText from "./AnnotatedText.astro";
+
+interface Props {
+  value?: RichTextPart[];
+}
+
+const { value } = Astro.props;
+
+// Outermost first: a link wraps everything, and `code` sits closest to the text.
+function tagsFor(part: RichTextPart) {
+  const tags: string[] = [];
+
+  if (hrefFor(part)) {
+    tags.push("a");
+  }
+
+  if (part.annotations?.strikethrough) {
+    tags.push("s");
+  }
+
+  if (part.annotations?.underline) {
+    tags.push("u");
+  }
+
+  if (part.annotations?.italic) {
+    tags.push("em");
+  }
+
+  if (part.annotations?.bold) {
+    tags.push("strong");
+  }
+
+  if (part.annotations?.code) {
+    tags.push("code");
+  }
+
+  return tags;
+}
+
+function hrefFor(part: RichTextPart) {
+  return part.href || part.text?.link?.url;
+}
+---
+
+{value?.map((part) => (<span><AnnotatedText tags={tagsFor(part)} href={hrefFor(part)} text={part.plain_text} /></span>))}

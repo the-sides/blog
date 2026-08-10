@@ -1,0 +1,16 @@
+---
+import { asText, type ShortcodeComponentProps } from "@/lib/shortcodes/props";
+
+type Props = ShortcodeComponentProps;
+
+const { leftTitle, rightTitle } = Astro.props;
+---
+
+<section class="shortcode-comparison">
+  <p class="shortcode-title">Comparison</p>
+  <div class="comparison-grid">
+    <div class="comparison-cell"><strong>{asText(leftTitle, "Before")}</strong></div>
+    <div class="comparison-cell"><strong>{asText(rightTitle, "After")}</strong></div>
+  </div>
+  <slot />
+</section>

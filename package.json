@@ -3,23 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "check": "astro check",
+    "astro": "astro"
   },
   "dependencies": {
-    "next": "16.2.9",
-    "react": "latest",
-    "react-dom": "latest"
+    "@astrojs/vercel": "^11.0.5",
+    "astro": "^7.2.0"
   },
   "devDependencies": {
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "eslint": "latest",
-    "eslint-config-next": "16.2.9",
-    "typescript": "latest"
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^6.0.3"
   }
 }

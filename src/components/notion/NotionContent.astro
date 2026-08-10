@@ -1,0 +1,13 @@
+---
+import type { NotionBlock } from "@/lib/notion/types";
+import { parseShortcodeNodes } from "@/lib/shortcodes/parser";
+import RenderNodes from "./RenderNodes.astro";
+
+interface Props {
+  blocks: NotionBlock[];
+}
+
+const { blocks } = Astro.props;
+---
+
+<div class="notion-content"><RenderNodes nodes={parseShortcodeNodes(blocks)} /></div>

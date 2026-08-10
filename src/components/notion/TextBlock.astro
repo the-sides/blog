@@ -1,0 +1,14 @@
+---
+// A dynamic tag needs a capitalized local name, which a template expression
+// cannot declare — so the wrapper lives here and the content arrives as a slot.
+import type { TextTag } from "@/lib/notion/render";
+
+interface Props {
+  tag: TextTag;
+  class?: string;
+}
+
+const { tag: Tag, class: className } = Astro.props;
+---
+
+<Tag class={className}><slot /></Tag>

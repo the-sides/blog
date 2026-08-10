@@ -1,0 +1,15 @@
+---
+import { asText, type ShortcodeComponentProps } from "@/lib/shortcodes/props";
+
+type Props = ShortcodeComponentProps;
+
+const { eyebrow } = Astro.props;
+---
+
+<section class="newsletter-signup">
+  <div>
+    <p class="shortcode-title">{asText(eyebrow, "Newsletter")}</p>
+    <p>Get the next field note when it ships.</p>
+  </div>
+  <button type="button">Subscribe</button>
+</section>

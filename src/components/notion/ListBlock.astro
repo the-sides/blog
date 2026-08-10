@@ -1,0 +1,9 @@
+---
+interface Props {
+  tag: "ul" | "ol";
+}
+
+const { tag: Tag } = Astro.props;
+---
+
+<Tag><slot /></Tag>

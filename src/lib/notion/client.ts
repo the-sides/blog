@@ -1,4 +1,16 @@
-import { cache } from "react";
+import {
+  NOTION_API_VERSION,
+  NOTION_AUTHOR_PROPERTY,
+  NOTION_DATA_SOURCE_ID,
+  NOTION_EXCERPT_PROPERTY,
+  NOTION_PUBLISHED_PROPERTY,
+  NOTION_PUBLISHED_STATUS,
+  NOTION_REVALIDATE_SECONDS,
+  NOTION_SLUG_PROPERTY,
+  NOTION_STATUS_PROPERTY,
+  NOTION_TITLE_PROPERTY,
+  NOTION_TOKEN,
+} from "astro:env/server";
 import { demoPosts } from "./demo";
 import type {
   BlogPost,
@@ -14,20 +26,20 @@ import type {
 const NOTION_API_BASE = "https://api.notion.com/v1";
 
 const schema = {
-  title: process.env.NOTION_TITLE_PROPERTY || "Title",
-  slug: process.env.NOTION_SLUG_PROPERTY || "Slug",
-  status: process.env.NOTION_STATUS_PROPERTY || "Status",
-  publishedStatus: process.env.NOTION_PUBLISHED_STATUS || "Published",
-  excerpt: process.env.NOTION_EXCERPT_PROPERTY || "Excerpt",
-  author: process.env.NOTION_AUTHOR_PROPERTY || "Author",
-  published: process.env.NOTION_PUBLISHED_PROPERTY || "Published",
+  title: NOTION_TITLE_PROPERTY || "Title",
+  slug: NOTION_SLUG_PROPERTY || "Slug",
+  status: NOTION_STATUS_PROPERTY || "Status",
+  publishedStatus: NOTION_PUBLISHED_STATUS || "Published",
+  excerpt: NOTION_EXCERPT_PROPERTY || "Excerpt",
+  author: NOTION_AUTHOR_PROPERTY || "Author",
+  published: NOTION_PUBLISHED_PROPERTY || "Published",
 };
 
 export function hasNotionCredentials() {
-  return Boolean(process.env.NOTION_TOKEN && process.env.NOTION_DATA_SOURCE_ID);
+  return Boolean(NOTION_TOKEN && NOTION_DATA_SOURCE_ID);
 }
 
-export const getPublishedPosts = cache(async (): Promise<BlogPostSummary[]> => {
+export async function getPublishedPosts(): Promise<BlogPostSummary[]> {
   if (!hasNotionCredentials()) {
     return demoPosts.map(stripBlocks);
   }
@@ -38,9 +50,9 @@ export const getPublishedPosts = cache(async (): Promise<BlogPostSummary[]> => {
     .map(pageToSummary)
     .filter(isPublished)
     .sort(sortNewestFirst);
-});
+}
 
-export const getPostBySlug = cache(async (slug: string): Promise<BlogPost | null> => {
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   if (!hasNotionCredentials()) {
     return demoPosts.find((post) => post.slug === slug) || null;
   }
@@ -58,7 +70,7 @@ export const getPostBySlug = cache(async (slug: string): Promise<BlogPost | null
     ...pageToSummary(page),
     blocks,
   };
-});
+}
 
 async function listDataSourcePages() {
   const pages: NotionPage[] = [];
@@ -66,7 +78,7 @@ async function listDataSourcePages() {
 
   do {
     const response: PaginatedList<NotionPage> = await notionFetch(
-      `/data_sources/${process.env.NOTION_DATA_SOURCE_ID}/query`,
+      `/data_sources/${NOTION_DATA_SOURCE_ID}/query`,
       {
         method: "POST",
         body: JSON.stringify({
@@ -152,31 +164,73 @@ function getBlockChildrenSourceId(block: NotionBlock) {
   return typeof blockId === "string" ? blockId : null;
 }
 
-async function notionFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${NOTION_API_BASE}${path}`, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
-      "Content-Type": "application/json",
-      "Notion-Version": process.env.NOTION_API_VERSION || "2026-03-11",
-      ...init.headers,
-    },
-    next: {
-      revalidate: getRevalidateSeconds(),
-      tags: ["notion"],
-    },
-  });
+function notionFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const key = `${init.method || "GET"} ${path} ${init.body ?? ""}`;
 
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(`Notion API ${response.status}: ${detail}`);
+  return withCache(key, async () => {
+    const response = await fetch(`${NOTION_API_BASE}${path}`, {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${NOTION_TOKEN}`,
+        "Content-Type": "application/json",
+        "Notion-Version": NOTION_API_VERSION || "2026-03-11",
+        ...init.headers,
+      },
+    });
+
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(`Notion API ${response.status}: ${detail}`);
+    }
+
+    return response.json() as Promise<T>;
+  });
+}
+
+type CacheEntry = {
+  expiresAt: number;
+  response: Promise<unknown>;
+};
+
+const MAX_CACHE_ENTRIES = 64;
+const responseCache = new Map<string, CacheEntry>();
+
+// A short-lived memo in front of the Notion API, in the spirit of the framework
+// fetch cache this used to lean on. It lives in the running instance rather than
+// a shared store, so a cold start simply refetches. Storing the promise rather
+// than the value also collapses the repeat calls a single render makes.
+function withCache<T>(key: string, load: () => Promise<T>): Promise<T> {
+  const now = Date.now();
+  const cached = responseCache.get(key);
+
+  if (cached && cached.expiresAt > now) {
+    return cached.response as Promise<T>;
   }
 
-  return response.json() as Promise<T>;
+  const response = load().catch((error: unknown) => {
+    // Never let a failure stick around for the rest of the window.
+    responseCache.delete(key);
+    throw error;
+  });
+
+  responseCache.set(key, {
+    expiresAt: now + getRevalidateSeconds() * 1000,
+    response,
+  });
+
+  if (responseCache.size > MAX_CACHE_ENTRIES) {
+    for (const [entryKey, entry] of responseCache) {
+      if (entry.expiresAt <= now) {
+        responseCache.delete(entryKey);
+      }
+    }
+  }
+
+  return response;
 }
 
 function getRevalidateSeconds() {
-  const value = Number(process.env.NOTION_REVALIDATE_SECONDS || 300);
+  const value = Number(NOTION_REVALIDATE_SECONDS || 300);
   return Number.isFinite(value) && value >= 0 ? value : 300;
 }
 

@@ -1,0 +1,30 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { formatPostDate } from "@/lib/date";
+import { getPublishedPosts } from "@/lib/notion/client";
+
+const posts = await getPublishedPosts();
+---
+
+<BaseLayout>
+  <main>
+    <section class="home-intro">
+      <h1>Thoughts</h1>
+      <p>Better published than forgotten.</p>
+    </section>
+
+    <section class="post-index" aria-label="Posts">
+      {
+        posts.map((post) => (
+          <article class="post-card">
+            <p class="post-meta">{formatPostDate(post.publishedAt)}</p>
+            <h2>
+              <a href={`/posts/${post.slug}`}>{post.title}</a>
+            </h2>
+            <p>{post.excerpt}</p>
+          </article>
+        ))
+      }
+    </section>
+  </main>
+</BaseLayout>

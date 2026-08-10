@@ -1,0 +1,69 @@
+---
+import Shortcode from "@/components/shortcodes/Shortcode.astro";
+import { getRichText, toRenderItems } from "@/lib/notion/render";
+import { parseShortcodeNodes, type RenderNode } from "@/lib/shortcodes/parser";
+import ListBlock from "./ListBlock.astro";
+import RichText from "./RichText.astro";
+import TextBlock from "./TextBlock.astro";
+
+// The one recursive component: nested Notion blocks and shortcode children both
+// come back through `Astro.self`, re-parsed so shortcodes nest as well.
+interface Props {
+  nodes: RenderNode[];
+}
+
+const items = toRenderItems(Astro.props.nodes);
+---
+
+{
+  items.map((item) =>
+    item.kind === "error" ? (
+      <div class="shortcode-error">{item.message}</div>
+    ) : item.kind === "component" ? (
+      <Shortcode name={item.name} props={item.props}>
+        <Astro.self nodes={item.children} />
+      </Shortcode>
+    ) : item.kind === "list" ? (
+      <ListBlock tag={item.tag}>
+        {item.blocks.map((block) => (
+          <li>
+            <RichText value={getRichText(block)} />
+            {block.children?.length ? <Astro.self nodes={parseShortcodeNodes(block.children)} /> : null}
+          </li>
+        ))}
+      </ListBlock>
+    ) : item.view.shape === "text" ? (
+      <TextBlock tag={item.view.tag} class={item.view.class}>
+        <RichText value={item.view.richText} />
+        {item.view.children?.length ? <Astro.self nodes={parseShortcodeNodes(item.view.children)} /> : null}
+      </TextBlock>
+    ) : item.view.shape === "todo" ? (
+      <div class="todo-item">
+        <span class="todo-box" data-checked={String(item.view.checked)} />
+        <span>
+          <RichText value={item.view.richText} />
+          {item.view.children?.length ? <Astro.self nodes={parseShortcodeNodes(item.view.children)} /> : null}
+        </span>
+      </div>
+    ) : item.view.shape === "divider" ? (
+      <hr />
+    ) : item.view.shape === "code" ? (
+      <pre><code data-language={item.view.language}>{item.view.text}</code></pre>
+    ) : item.view.shape === "image" ? (
+      <figure class="notion-image">
+        <img src={item.view.src} alt={item.view.alt} />
+        {item.view.caption?.length ? (
+          <figcaption><RichText value={item.view.caption} /></figcaption>
+        ) : null}
+      </figure>
+    ) : item.view.shape === "bookmark" ? (
+      <p>
+        <a href={item.view.url} rel="noreferrer" target="_blank">
+          {item.view.caption?.length ? <RichText value={item.view.caption} /> : item.view.url}
+        </a>
+      </p>
+    ) : item.view.shape === "message" ? (
+      <div class="shortcode-missing">{item.view.text}</div>
+    ) : null,
+  )
+}

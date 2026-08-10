@@ -1,0 +1,20 @@
+---
+import type { ShortcodeProps } from "@/lib/shortcodes/parser";
+import { shortcodeRegistry } from "./registry";
+
+interface Props {
+  name: string;
+  props: ShortcodeProps;
+}
+
+const { name, props } = Astro.props;
+const Component = shortcodeRegistry[name.toLowerCase()];
+---
+
+{
+  Component ? (
+    <Component {...props}><slot /></Component>
+  ) : (
+    <div class="shortcode-missing">Unknown shortcode: {name}</div>
+  )
+}

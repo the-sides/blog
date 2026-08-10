@@ -6,7 +6,7 @@ export const demoPosts: BlogPost[] = [
     title: "Programmable Notion Pages",
     slug: "programmable-notion-pages",
     excerpt:
-      "A working sample that turns Notion paragraphs into shortcode-powered React islands.",
+      "A working sample that turns Notion paragraphs into shortcode-powered Astro components.",
     author: "Demo notebook",
     publishedAt: "2026-06-20",
     coverUrl:
@@ -24,7 +24,7 @@ export const demoPosts: BlogPost[] = [
       paragraph("Self-closing shortcodes inject a component between blocks."),
       paragraph("[NewsletterSignup eyebrow=\"Dispatch\" /]"),
       heading("Page-specific wrappers", 2),
-      paragraph("[Comparison leftTitle=\"Plain Notion\" rightTitle=\"With React\"]"),
+      paragraph("[Comparison leftTitle=\"Plain Notion\" rightTitle=\"With Astro\"]"),
       paragraph("Left and right labels are props. The middle stays editable in Notion."),
       paragraph("[/Comparison]"),
       quote("This gives you a CMS for words and a codebase for moments where words are not enough."),

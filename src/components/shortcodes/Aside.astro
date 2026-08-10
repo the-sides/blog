@@ -1,0 +1,12 @@
+---
+import { asText, type ShortcodeComponentProps } from "@/lib/shortcodes/props";
+
+type Props = ShortcodeComponentProps;
+
+const { title } = Astro.props;
+---
+
+<aside class="shortcode-aside">
+  <p class="shortcode-title">{asText(title, "Aside")}</p>
+  <slot />
+</aside>

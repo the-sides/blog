@@ -86,7 +86,9 @@ img {
   transition: border-color 0.4s ease;
 }
 
-/* The thumb slides between the two options; the buttons sit on top of it. */
+/* The thumb slides between the two options; the buttons sit on top of it. It
+   tracks the theme attribute directly, so it is already in place at first paint
+   and only animates on an actual change. */
 .theme-toggle__thumb {
   background: var(--thumb);
   border-radius: 999px;
@@ -94,14 +96,11 @@ img {
   left: 3px;
   position: absolute;
   top: 3px;
+  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1), background-color 0.4s ease;
   width: 26px;
 }
 
-.theme-toggle[data-ready="true"] .theme-toggle__thumb {
-  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1), background-color 0.4s ease;
-}
-
-.theme-toggle__thumb[data-position="dark"] {
+:root[data-theme="dark"] .theme-toggle__thumb {
   transform: translateX(26px);
 }
 
@@ -125,7 +124,8 @@ img {
   color: var(--ink);
 }
 
-.theme-option[aria-pressed="true"] {
+:root[data-theme="light"] .theme-option[data-option="light"],
+:root[data-theme="dark"] .theme-option[data-option="dark"] {
   color: var(--ink);
 }
 
@@ -135,11 +135,11 @@ img {
   width: 14px;
 }
 
-.theme-option[data-option="light"][aria-pressed="true"] svg {
+:root[data-theme="light"] .theme-option[data-option="light"] svg {
   transform: rotate(60deg);
 }
 
-.theme-option[data-option="dark"][aria-pressed="true"] svg {
+:root[data-theme="dark"] .theme-option[data-option="dark"] svg {
   transform: rotate(-18deg);
 }
 
